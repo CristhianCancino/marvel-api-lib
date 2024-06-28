@@ -1,8 +1,8 @@
 package com.openpay.challenge.marvelapi.service;
 
-import com.openpay.challenge.marvelapi.models.Characters;
+import com.openpay.challenge.marvelapi.models.CharactersApiResponse;
 
 public interface IMarvelApiService {
-    Characters getCharacters();
-    Characters getCharacterById(int characterId);
+    CharactersApiResponse getCharacters();
+    CharactersApiResponse getCharacterById(int characterId);
 }

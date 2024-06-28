@@ -8,7 +8,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class Characters {
+public class CharactersApiResponse {
 
     public String code;
     public String status;
