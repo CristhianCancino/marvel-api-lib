@@ -2,10 +2,15 @@ package com.openpay.challenge.marvelapi.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 
 public class HashUtil {
 
  public static String generateHash(String timestamp, String privateKey, String publicKey) {
+     Objects.requireNonNull(timestamp, "Timestamp cannot be null");
+     Objects.requireNonNull(privateKey, "Private key cannot be null");
+     Objects.requireNonNull(publicKey, "Public key cannot be null");
+
     try {
         String input = timestamp + privateKey + publicKey;
         MessageDigest md = MessageDigest.getInstance("MD5");

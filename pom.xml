@@ -32,6 +32,7 @@
 	</scm>
 	<properties>
 		<java.version>17</java.version>
+		<start-class>com.openpay.challenge.marvelapi.MarvelCharactersClientApplication</start-class>
 	</properties>
 	<dependencies>
 		<dependency>
