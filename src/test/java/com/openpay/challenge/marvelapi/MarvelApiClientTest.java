@@ -1,67 +1,75 @@
 package com.openpay.challenge.marvelapi;
 
-import com.openpay.challenge.marvelapi.models.Characters;
+import com.openpay.challenge.marvelapi.models.CharactersApiResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
-class MarvelApiClientTest {
+
+
+public class MarvelApiClientTest {
 
     @Mock
     private RestTemplate restTemplate;
 
     @InjectMocks
-    private MarvelApiServiceClient marvelApiServiceClient;
+    private MarvelApiClient marvelApiClient;
 
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
+        ReflectionTestUtils.setField(marvelApiClient, "publicKey", "mockPublicKey");
+        ReflectionTestUtils.setField(marvelApiClient, "privateKey", "mockPrivateKey");
     }
 
     @Test
-    void getCharacters_returnsListOfCharacters() {
-        Characters character1 = new Characters();
-        Characters character2 = new Characters();
-        List<Characters> expectedCharacters = Arrays.asList(character1, character2);
-
-        when(restTemplate.getForObject(anyString(), eq(List.class))).thenReturn(expectedCharacters);
-
-        Characters actualCharacters = marvelApiServiceClient.getCharacters();
-
-        assertEquals(expectedCharacters, actualCharacters);
-        verify(restTemplate, times(1)).getForObject(anyString(), eq(List.class));
+    public void getCharactersReturnsValidResponse() {
+        when(restTemplate.getForObject(anyString(), any())).thenReturn(new CharactersApiResponse());
+        CharactersApiResponse response = marvelApiClient.getCharacters();
+        assertNotNull(response);
     }
 
-
     @Test
-    void getCharacters_returnsEmptyListWhenNoCharacters() {
-        when(restTemplate.getForObject(anyString(), eq(Characters.class))).thenReturn(new Characters());
-
-        Characters actualCharacters = marvelApiServiceClient.getCharacters();
-
-        assertTrue(actualCharacters.getData().getResults().isEmpty());
-        verify(restTemplate, times(1)).getForObject(anyString(), eq(Characters.class));
+    public void getCharacterByIdReturnsValidResponse() {
+        when(restTemplate.getForObject(anyString(), any())).thenReturn(new CharactersApiResponse());
+        CharactersApiResponse response = marvelApiClient.getCharacterById(100);
+        assertNotNull(response);
     }
 
+    @Test
+    public void getCharactersThrowsExceptionWhenRestTemplateFails() {
+        when(restTemplate.getForObject(anyString(), any())).thenThrow(RestClientException.class);
+        assertThrows(RestClientException.class, () -> marvelApiClient.getCharacters());
+    }
 
     @Test
-    void getCharacterById_returnsNullWhenCharacterNotFound() {
-        int characterId = 999;
+    public void getCharactersReturnsNullWhenRestTemplateReturnsNull() {
+        when(restTemplate.getForObject(anyString(), any())).thenReturn(null);
+        CharactersApiResponse response = marvelApiClient.getCharacters();
+        assertNull(response);
+    }
 
-        when(restTemplate.getForObject(anyString(), eq(Characters.class))).thenReturn(null);
+    @Test
+    public void getCharacterByIdThrowsExceptionWhenRestTemplateFails() {
+        when(restTemplate.getForObject(anyString(), any())).thenThrow(RestClientException.class);
+        assertThrows(RestClientException.class, () -> marvelApiClient.getCharacterById(100));
+    }
 
-        Characters actualCharacter = marvelApiServiceClient.getCharacterById(characterId);
-
-        assertNull(actualCharacter);
-        verify(restTemplate, times(1)).getForObject(anyString(), eq(Characters.class));
+    @Test
+    public void getCharacterByIdReturnsNullWhenRestTemplateReturnsNull() {
+        when(restTemplate.getForObject(anyString(), any())).thenReturn(null);
+        CharactersApiResponse response = marvelApiClient.getCharacterById(100);
+        assertNull(response);
     }
 }
